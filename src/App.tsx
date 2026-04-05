@@ -120,54 +120,13 @@ const PRODUCTS: ProductOption[] = [
 ];
 
 function CountdownTimer() {
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
-
-  const playBeep = () => {
-    try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      
-      const playSinglePi = (delay: number) => {
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime + delay);
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime + delay);
-        gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + delay + 0.01);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + delay + 0.08);
-
-        oscillator.start(audioCtx.currentTime + delay);
-        oscillator.stop(audioCtx.currentTime + delay + 0.1);
-      };
-
-      // Play "pi pi pi pi"
-      playSinglePi(0);
-      playSinglePi(0.12);
-      playSinglePi(0.24);
-      playSinglePi(0.36);
-    } catch (e) {
-      // Audio context might be blocked by browser until user interaction
-    }
-  };
+  const [timeLeft, setTimeLeft] = useState(3600); // 60 minutes - less aggressive
 
   useEffect(() => {
     if (timeLeft <= 0) return;
     
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        // Beep every second for the last 10 seconds, every 10 seconds in the last minute, or every minute otherwise
-        if (prev <= 11 || (prev <= 60 && prev % 10 === 0) || prev % 60 === 0) {
-          playBeep();
-        }
-        return prev - 1;
-      });
+      setTimeLeft(prev => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
@@ -177,15 +136,14 @@ function CountdownTimer() {
   const seconds = timeLeft % 60;
 
   return (
-    <div className="bg-neutral-900 text-white py-8 md:py-12 px-4 rounded-[2rem] md:rounded-[4rem] shadow-2xl flex flex-col items-center justify-center gap-4 border-4 border-red-600 animate-pulse overflow-hidden">
-      <div className="flex items-center gap-3 md:gap-4 text-red-500">
-        <TimerIcon size={32} className="animate-bounce md:w-12 md:h-12" />
-        <span className="text-lg md:text-3xl font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-center">Oferta Expira Em:</span>
+    <div className="bg-white text-neutral-900 py-6 md:py-8 px-4 rounded-3xl shadow-sm flex flex-col items-center justify-center gap-2 border border-neutral-100 overflow-hidden">
+      <div className="flex items-center gap-2 text-neutral-500">
+        <TimerIcon size={20} className="md:w-6 md:h-6" />
+        <span className="text-sm md:text-base font-bold uppercase tracking-wider text-center">Tempo restante da promoção:</span>
       </div>
-      <div className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black font-mono tracking-tighter leading-none text-red-600 drop-shadow-[0_0_20px_rgba(220,38,38,0.5)]">
+      <div className="text-4xl sm:text-5xl md:text-6xl font-bold font-mono tracking-tight text-neutral-800">
         {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
       </div>
-      <p className="text-sm md:text-xl font-black text-neutral-400 uppercase tracking-[0.1em] md:tracking-[0.3em] text-center">Garanta seu desconto agora!</p>
     </div>
   );
 }
@@ -280,19 +238,19 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-neutral-900 pb-20">
-      {/* Header / Urgency */}
-      <header className="bg-red-600 text-white py-4 px-4 sticky top-0 z-50 shadow-md">
+      {/* Header / Info */}
+      <header className="bg-neutral-900 text-white py-3 px-4 sticky top-0 z-50 shadow-sm">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2 font-bold text-lg">
-            <AlertTriangle className="animate-pulse" size={24} />
-            <span className="uppercase tracking-wider">Oferta Válida Somente Hoje - {formattedDate}</span>
+          <div className="flex items-center gap-2 font-bold text-sm">
+            <CheckCircle2 className="text-green-500" size={18} />
+            <span className="uppercase tracking-wider">Site Seguro e Oficial - {formattedDate}</span>
           </div>
-          <div className="flex items-center gap-4 text-sm font-medium">
-            <span className="bg-white/20 px-3 py-1 rounded-full border border-white/30">
-              🔥 43 unidades restantes
+          <div className="flex items-center gap-4 text-xs font-medium">
+            <span className="opacity-80">
+              📦 Enviamos para todo o Brasil
             </span>
-            <span className="hidden sm:inline opacity-90">
-              +85 vendidas hoje
+            <span className="hidden sm:inline opacity-80">
+              💳 Parcelamento em até 6x
             </span>
           </div>
         </div>
@@ -302,30 +260,26 @@ export default function App() {
         {/* Ofertas em Destaque Section */}
         <section className="space-y-6">
           {/* Oferta do Dia Hero Section */}
-          <div className="relative overflow-hidden rounded-[2rem] md:rounded-[4rem] bg-gradient-to-br from-red-600 to-red-800 text-white shadow-2xl">
+          <div className="relative overflow-hidden rounded-3xl bg-neutral-100 text-neutral-900 shadow-sm border border-neutral-200">
             <div className="absolute top-0 right-0 p-6">
-              <motion.div 
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="bg-yellow-400 text-red-900 font-black px-6 py-2 rounded-full text-xl shadow-lg transform rotate-12"
-              >
-                OFERTA DO DIA!
-              </motion.div>
+              <div className="bg-red-600 text-white font-bold px-4 py-1 rounded-full text-sm shadow-sm">
+                DESTAQUE
+              </div>
             </div>
             
-            <div className="flex flex-col md:flex-row items-center gap-8 p-8 md:p-16">
+            <div className="flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
               <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
-                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
-                  KIT <span className="text-yellow-400">ECONÔMICO</span> BELUTTI
+                <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight leading-tight">
+                  KIT <span className="text-red-600">PROFISSIONAL</span> BELUTTI
                 </h2>
-                <p className="text-lg md:text-xl font-bold opacity-90">
-                  A oportunidade que você esperava para ter resultados profissionais com o melhor custo-benefício do mercado!
+                <p className="text-base md:text-lg font-medium text-neutral-600">
+                  Resultados de salão no conforto da sua casa com tecnologia orgânica avançada.
                 </p>
-                <div className="flex flex-col items-center md:items-start gap-2">
-                  <span className="text-xl line-through opacity-60">De: R$ 100,00</span>
+                <div className="flex flex-col items-center md:items-start gap-1">
+                  <span className="text-lg line-through opacity-40">De: R$ 100,00</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold uppercase">Por apenas:</span>
-                    <span className="text-5xl md:text-7xl font-black text-yellow-400">R$ 27,90</span>
+                    <span className="text-sm font-bold text-neutral-500 uppercase">Por:</span>
+                    <span className="text-4xl md:text-5xl font-bold text-red-600">R$ 27,90</span>
                   </div>
                 </div>
                 <button 
@@ -333,56 +287,44 @@ export default function App() {
                     const el = document.getElementById('oferta-dia');
                     el?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="w-full md:w-auto bg-white text-red-600 px-12 py-5 rounded-2xl font-black text-2xl uppercase tracking-widest shadow-xl hover:bg-yellow-400 hover:text-red-900 transition-all transform hover:scale-105"
+                  className="w-full md:w-auto bg-neutral-900 text-white px-8 py-4 rounded-xl font-bold text-lg uppercase tracking-wide shadow-md hover:bg-neutral-800 transition-all"
                 >
-                  QUERO ESSA OFERTA!
+                  VER DETALHES
                 </button>
               </div>
               
               <div className="w-full md:w-1/2 relative">
-                <motion.div
-                  initial={{ rotate: -5, scale: 0.9 }}
-                  animate={{ rotate: 0, scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="relative z-10"
-                >
-                  <img 
-                    src="https://i.ibb.co/d4jX5Qm2/Chat-GPT-Image-5-04-2026-10-56-59.png" 
-                    alt="Oferta do Dia" 
-                    className="w-full h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] brightness-[0.85] contrast-[1.1] saturate-[1.2]"
-                    referrerPolicy="no-referrer"
-                  />
-                </motion.div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-yellow-400/20 blur-[100px] rounded-full"></div>
+                <img 
+                  src="https://i.ibb.co/d4jX5Qm2/Chat-GPT-Image-5-04-2026-10-56-59.png" 
+                  alt="Oferta do Dia" 
+                  className="w-full h-auto object-contain drop-shadow-xl"
+                  referrerPolicy="no-referrer"
+                />
               </div>
             </div>
           </div>
 
           {/* Segunda Maior Oferta do Dia Hero Section */}
-          <div className="relative overflow-hidden rounded-[2rem] md:rounded-[4rem] bg-gradient-to-br from-neutral-800 to-neutral-950 text-white shadow-2xl border-4 border-yellow-400">
+          <div className="relative overflow-hidden rounded-3xl bg-neutral-900 text-white shadow-sm">
             <div className="absolute top-0 right-0 p-6">
-              <motion.div 
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="bg-red-600 text-white font-black px-6 py-2 rounded-full text-lg shadow-lg transform -rotate-6"
-              >
-                2ª MAIOR OFERTA!
-              </motion.div>
+              <div className="bg-yellow-500 text-neutral-900 font-bold px-4 py-1 rounded-full text-sm shadow-sm">
+                OFERTA ESPECIAL
+              </div>
             </div>
             
-            <div className="flex flex-col md:flex-row-reverse items-center gap-8 p-8 md:p-16">
+            <div className="flex flex-col md:flex-row-reverse items-center gap-8 p-8 md:p-12">
               <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
-                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
-                  REPARADOR <span className="text-yellow-400">DE PONTAS</span>
+                <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight leading-tight">
+                  REPARADOR <span className="text-yellow-500">DE PONTAS</span>
                 </h2>
-                <p className="text-lg md:text-xl font-bold opacity-90">
-                  O toque final que seu cabelo merece. Brilho intenso e pontas restauradas instantaneamente!
+                <p className="text-base md:text-lg font-medium opacity-80">
+                  Brilho intenso e restauração instantânea para todos os tipos de cabelo.
                 </p>
-                <div className="flex flex-col items-center md:items-start gap-2">
-                  <span className="text-xl line-through opacity-60">De: R$ 70,00</span>
+                <div className="flex flex-col items-center md:items-start gap-1">
+                  <span className="text-lg line-through opacity-40">De: R$ 70,00</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold uppercase">Por apenas:</span>
-                    <span className="text-5xl md:text-7xl font-black text-yellow-400">R$ 29,90</span>
+                    <span className="text-sm font-bold opacity-60 uppercase">Por:</span>
+                    <span className="text-4xl md:text-5xl font-bold text-yellow-500">R$ 29,90</span>
                   </div>
                 </div>
                 <button 
@@ -390,28 +332,19 @@ export default function App() {
                     const el = document.getElementById('reparador');
                     el?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="w-full md:w-auto bg-yellow-400 text-neutral-900 px-12 py-5 rounded-2xl font-black text-2xl uppercase tracking-widest shadow-xl hover:bg-white hover:text-red-600 transition-all transform hover:scale-105"
+                  className="w-full md:w-auto bg-white text-neutral-900 px-8 py-4 rounded-xl font-bold text-lg uppercase tracking-wide shadow-md hover:bg-neutral-100 transition-all"
                 >
-                  APROVEITAR AGORA!
+                  VER DETALHES
                 </button>
               </div>
               
               <div className="w-full md:w-1/2 relative">
-                <motion.div
-                  initial={{ rotate: 5, scale: 0.9 }}
-                  whileInView={{ rotate: 0, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
-                  className="relative z-10"
-                >
-                  <img 
-                    src="https://i.ibb.co/3YFwLGXb/Chat-GPT-Image-5-04-2026-11-23-08.png" 
-                    alt="Segunda Maior Oferta" 
-                    className="w-full h-auto object-contain drop-shadow-[0_20px_50px_rgba(255,255,255,0.1)] brightness-[1.1] contrast-[1.05]"
-                    referrerPolicy="no-referrer"
-                  />
-                </motion.div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-red-600/10 blur-[100px] rounded-full"></div>
+                <img 
+                  src="https://i.ibb.co/3YFwLGXb/Chat-GPT-Image-5-04-2026-11-23-08.png" 
+                  alt="Segunda Maior Oferta" 
+                  className="w-full h-auto object-contain drop-shadow-xl"
+                  referrerPolicy="no-referrer"
+                />
               </div>
             </div>
           </div>
@@ -422,21 +355,17 @@ export default function App() {
 
         {/* Products Section */}
         <section className="space-y-8">
-          <div className="flex items-center gap-3 border-b-4 border-red-600 pb-2">
-            <ShoppingBag className="text-red-600" size={32} />
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic">Produtos em Oferta</h2>
+          <div className="flex items-center gap-3 border-b border-neutral-200 pb-2">
+            <ShoppingBag className="text-neutral-900" size={24} />
+            <h2 className="text-2xl font-bold uppercase tracking-tight">Produtos Disponíveis</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {PRODUCTS.map((product, idx) => (
-              <motion.div 
+              <div 
                 key={product.id}
                 id={product.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="bg-white rounded-3xl shadow-xl overflow-hidden border border-neutral-100 group flex flex-col"
+                className="bg-white rounded-2xl shadow-sm overflow-hidden border border-neutral-200 group flex flex-col"
               >
                 {product.image && (
                   <div className="aspect-square overflow-hidden bg-white p-4">
@@ -451,37 +380,30 @@ export default function App() {
                 <div className="p-6 space-y-4 flex-grow flex flex-col">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <Package className="text-red-600" size={20} />
+                      <Package className="text-neutral-400" size={18} />
                       <div className="flex flex-col">
                         <span className="text-[10px] font-bold text-neutral-400 line-through uppercase">De: R$ {product.originalPrice.toFixed(2)}</span>
-                        <h3 className="text-xl font-bold uppercase tracking-tight">{product.name}</h3>
+                        <h3 className="text-lg font-bold uppercase tracking-tight">{product.name}</h3>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">
-                        Estoque: <span className="text-red-600">{product.stock} unidades</span>
+                        Disponível em estoque
                       </span>
-                      <motion.span 
-                        animate={{ opacity: [1, 0, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                        className="text-[10px] font-black text-red-600 uppercase tracking-tighter"
-                      >
-                        ⚠️ ENQUANTO DURAR O ESTOQUE
-                      </motion.span>
                     </div>
                   </div>
                   
                   <div className="space-y-3 flex-grow">
                     {product.id === 'oferta-dia' || product.id === 'reparador' ? (
                       <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between p-6 rounded-3xl border-2 border-red-600 bg-red-50 shadow-inner">
+                        <div className="flex items-center justify-between p-4 rounded-2xl border border-neutral-100 bg-neutral-50">
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-red-600 uppercase tracking-widest">Quantidade</span>
-                            <span className="text-3xl font-black text-neutral-900">
+                            <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Quantidade</span>
+                            <span className="text-2xl font-bold text-neutral-900">
                               {selectedOptions[product.id]?.quantity || 0} {product.id === 'oferta-dia' ? 'Kits' : 'Unid.'}
                             </span>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3">
                             <button 
                               onClick={() => {
                                 const currentQty = selectedOptions[product.id]?.quantity || 0;
@@ -490,9 +412,9 @@ export default function App() {
                                   handleOptionChange(product.id, currentQty - 1, (currentQty - 1) * unitPrice);
                                 }
                               }}
-                              className="w-12 h-12 rounded-full bg-white border-2 border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-md active:scale-90"
+                              className="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-neutral-900 hover:text-white transition-all shadow-sm active:scale-90"
                             >
-                              <Minus size={24} />
+                              <Minus size={20} />
                             </button>
                             <button 
                               onClick={() => {
@@ -500,15 +422,15 @@ export default function App() {
                                 const unitPrice = product.id === 'oferta-dia' ? 27.90 : 29.90;
                                 handleOptionChange(product.id, currentQty + 1, (currentQty + 1) * unitPrice);
                               }}
-                              className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-200 hover:bg-red-700 transition-all active:scale-90"
+                              className="w-10 h-10 rounded-full bg-neutral-900 text-white flex items-center justify-center shadow-sm hover:bg-neutral-800 transition-all active:scale-90"
                             >
-                              <Plus size={24} />
+                              <Plus size={20} />
                             </button>
                           </div>
                         </div>
                         <div className="flex justify-between items-center px-2">
-                          <span className="text-sm font-bold text-neutral-500 uppercase">Subtotal:</span>
-                          <span className="text-2xl font-black text-neutral-900">
+                          <span className="text-xs font-bold text-neutral-400 uppercase">Subtotal:</span>
+                          <span className="text-xl font-bold text-neutral-900">
                             R$ {((selectedOptions[product.id]?.quantity || 0) * (product.id === 'oferta-dia' ? 27.90 : 29.90)).toFixed(2).replace('.', ',')}
                           </span>
                         </div>
@@ -566,15 +488,19 @@ export default function App() {
 
         {/* Hero Section */}
         <section className="text-center space-y-4 py-12 border-y border-neutral-100">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black text-neutral-900 leading-tight"
-          >
-            TRANSFORME SEU <span className="text-red-600">CABELO</span>
-          </motion.h1>
-          <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
-            Produtos profissionais com tecnologia orgânica para resultados de salão no conforto da sua casa.
+          <h1 className="text-3xl md:text-5xl font-bold text-neutral-900 leading-tight">
+            CUIDADO <span className="text-red-600">PROFISSIONAL</span> PARA SEU CABELO
+          </h1>
+          <p className="text-base text-neutral-600 max-w-2xl mx-auto">
+            Produtos desenvolvidos com tecnologia avançada para proporcionar brilho, hidratação e saúde aos seus fios.
+          </p>
+        </section>
+
+        {/* Sobre Nós Section */}
+        <section className="bg-white p-8 rounded-3xl shadow-sm border border-neutral-100 space-y-4">
+          <h2 className="text-2xl font-bold uppercase tracking-tight">Sobre a Belutti</h2>
+          <p className="text-neutral-600 leading-relaxed">
+            A Belutti Cosméticos é dedicada a trazer o melhor da tecnologia capilar para o seu dia a dia. Nossos produtos são formulados com ingredientes de alta qualidade, focando em resultados reais e duradouros. Acreditamos que cada pessoa merece um cuidado profissional, e trabalhamos incansavelmente para democratizar o acesso a cosméticos de alto desempenho.
           </p>
         </section>
 
@@ -793,17 +719,43 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-20 py-10 bg-neutral-100 border-t border-neutral-200">
-        <div className="max-w-4xl mx-auto px-4 text-center space-y-4">
-          <div className="flex justify-center gap-6 opacity-50 grayscale hover:grayscale-0 transition-all">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="Paypal" className="h-6" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-6" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-6" />
+      <footer className="mt-20 py-12 bg-neutral-900 text-white border-t border-neutral-800">
+        <div className="max-w-4xl mx-auto px-4 space-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div className="space-y-4">
+              <h3 className="font-bold uppercase tracking-widest text-sm text-neutral-400">Belutti Cosméticos</h3>
+              <p className="text-xs text-neutral-500 leading-relaxed">
+                Qualidade profissional e tecnologia avançada para o cuidado dos seus cabelos.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <h3 className="font-bold uppercase tracking-widest text-sm text-neutral-400">Links Úteis</h3>
+              <ul className="text-xs text-neutral-500 space-y-2">
+                <li><button className="hover:text-white transition-colors">Política de Privacidade</button></li>
+                <li><button className="hover:text-white transition-colors">Termos de Uso</button></li>
+                <li><button className="hover:text-white transition-colors">Sobre Nós</button></li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h3 className="font-bold uppercase tracking-widest text-sm text-neutral-400">Contato</h3>
+              <p className="text-xs text-neutral-500">
+                Email: contato@belutticosmeticos.com.br<br/>
+                WhatsApp: (73) 98814-3062
+              </p>
+            </div>
           </div>
-          <p className="text-neutral-500 text-xs font-medium">
-            © 2026 Belutti Cosméticos Profissionais. Todos os direitos reservados.<br/>
-            CNPJ: 34.380.287/0001-44 | Atendimento: (11) 99999-9999
-          </p>
+
+          <div className="pt-8 border-t border-white/5 flex flex-col items-center gap-6">
+            <div className="flex justify-center gap-6 opacity-30 grayscale">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="Paypal" className="h-5" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-5" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-5" />
+            </div>
+            <p className="text-neutral-600 text-[10px] font-medium text-center">
+              © 2026 Belutti Cosméticos Profissionais. Todos os direitos reservados.<br/>
+              CNPJ: 34.380.287/0001-44 | Atendimento de Segunda a Sexta, das 09h às 18h.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
