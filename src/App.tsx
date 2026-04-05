@@ -28,7 +28,6 @@ import { motion, AnimatePresence } from 'motion/react';
 interface ProductOption {
   id: string;
   name: string;
-  originalPrice: number;
   stock: number;
   options: {
     quantity: number;
@@ -52,7 +51,6 @@ const PRODUCTS: ProductOption[] = [
   {
     id: 'oferta-dia',
     name: 'Shampoo e Condicionador Belutti',
-    originalPrice: 100.00,
     image: 'https://i.ibb.co/d4jX5Qm2/Chat-GPT-Image-5-04-2026-10-56-59.png',
     stock: 50,
     options: [
@@ -62,7 +60,6 @@ const PRODUCTS: ProductOption[] = [
   {
     id: 'reparador',
     name: 'Reparador de Pontas Belutti',
-    originalPrice: 70.00,
     image: 'https://i.ibb.co/3YFwLGXb/Chat-GPT-Image-5-04-2026-11-23-08.png',
     stock: 45,
     options: [
@@ -72,7 +69,6 @@ const PRODUCTS: ProductOption[] = [
   {
     id: 'progressiva',
     name: 'Progressiva Blackprincess',
-    originalPrice: 400.00,
     image: 'https://i.ibb.co/Q3MBL6HQ/Whats-App-Image-2024-12-05-at-17-39-36.jpg',
     stock: 12,
     options: [
@@ -84,7 +80,6 @@ const PRODUCTS: ProductOption[] = [
   {
     id: 'teia',
     name: 'Hidratação Teia 1kg',
-    originalPrice: 160.00,
     image: 'https://i.ibb.co/n4vG0HF/Whats-App-Image-2024-12-05-at-17-39-37.jpg',
     stock: 18,
     options: [
@@ -94,7 +89,6 @@ const PRODUCTS: ProductOption[] = [
   {
     id: 'ativador',
     name: 'Ativador de Cachos',
-    originalPrice: 80.00,
     image: 'https://i.ibb.co/5PTsK0y/Whats-App-Image-2025-12-03-at-12-45-53.jpg',
     stock: 24,
     options: [
@@ -104,7 +98,6 @@ const PRODUCTS: ProductOption[] = [
   {
     id: 'liquida',
     name: 'Máscara de Chuveiro',
-    originalPrice: 80.00,
     image: 'https://i.ibb.co/cKCWD8Bt/Whats-App-Image-2024-12-05-at-17-39-10.jpg',
     stock: 31,
     options: [
@@ -129,6 +122,7 @@ export default function App() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showCookies, setShowCookies] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -161,12 +155,12 @@ export default function App() {
 
   const enviarPedido = () => {
     if (!orderData.nome || !orderData.telefone || !orderData.endereco || !orderData.email || !orderData.cep) {
-      alert('Por favor, preencha todos os dados do pedido.');
+      setErrorMsg('Por favor, preencha todos os dados do pedido.');
       return;
     }
 
     if (Object.keys(selectedOptions).length === 0) {
-      alert('Por favor, selecione pelo menos um produto.');
+      setErrorMsg('Por favor, selecione pelo menos um produto.');
       return;
     }
 
@@ -249,11 +243,11 @@ export default function App() {
                   Resultados de salão no conforto da sua casa com tecnologia orgânica avançada.
                 </p>
                 <div className="flex flex-col items-center md:items-start gap-1">
-                  <span className="text-xs font-black text-red-600 uppercase tracking-[0.2em] bg-red-100 px-3 py-1 rounded-full mb-2">Oferta Exclusiva</span>
+                  <span className="text-xs font-black text-neutral-500 uppercase tracking-[0.2em] bg-neutral-200 px-3 py-1 rounded-full mb-2">Destaque do Catálogo</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-5xl md:text-7xl font-black text-red-600 tracking-tighter">R$ 27,90</span>
+                    <span className="text-5xl md:text-7xl font-black text-neutral-900 tracking-tighter">R$ 27,90</span>
                   </div>
-                  <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest mt-1">Preço promocional por tempo limitado</span>
+                  <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest mt-1">Valor unitário para pedidos via WhatsApp</span>
                 </div>
                 <button 
                   onClick={() => {
@@ -288,11 +282,11 @@ export default function App() {
                   Brilho intenso e restauração instantânea para todos os tipos de cabelo.
                 </p>
                 <div className="flex flex-col items-center md:items-start gap-1">
-                  <span className="text-xs font-black text-yellow-500 uppercase tracking-[0.2em] bg-yellow-500/10 px-3 py-1 rounded-full mb-2 border border-yellow-500/20">Mais Vendido</span>
+                  <span className="text-xs font-black text-neutral-500 uppercase tracking-[0.2em] bg-neutral-200 px-3 py-1 rounded-full mb-2 border border-neutral-300">Linha Profissional</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-5xl md:text-7xl font-black text-yellow-500 tracking-tighter">R$ 29,90</span>
+                    <span className="text-5xl md:text-7xl font-black text-neutral-900 tracking-tighter">R$ 29,90</span>
                   </div>
-                  <span className="text-xs text-neutral-500 font-bold uppercase tracking-widest mt-1">Preço promocional por tempo limitado</span>
+                  <span className="text-xs text-neutral-500 font-bold uppercase tracking-widest mt-1">Valor unitário para pedidos via WhatsApp</span>
                 </div>
                 <button 
                   onClick={() => {
@@ -354,7 +348,7 @@ export default function App() {
                     </div>
                     
                     <div className="mt-2 mb-1 flex items-baseline gap-2">
-                      <span className="text-3xl font-black text-red-600 tracking-tighter">
+                      <span className="text-3xl font-black text-neutral-900 tracking-tighter">
                         R$ {product.options[0].price.toFixed(2).replace('.', ',')}
                       </span>
                       <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
@@ -870,6 +864,36 @@ export default function App() {
                   <p>A Belutti Cosméticos não se responsabiliza por mau uso dos produtos após a entrega.</p>
                 </div>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Error Modal */}
+      <AnimatePresence>
+        {errorMsg && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl text-center space-y-4"
+            >
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+                <AlertTriangle size={32} />
+              </div>
+              <h3 className="text-lg font-bold text-neutral-900">Atenção</h3>
+              <p className="text-sm text-neutral-600">{errorMsg}</p>
+              <button 
+                onClick={() => setErrorMsg(null)}
+                className="w-full bg-neutral-900 text-white py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all"
+              >
+                Entendido
+              </button>
             </motion.div>
           </motion.div>
         )}
