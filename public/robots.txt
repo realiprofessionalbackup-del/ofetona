@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://belutti-cosmeticos.vercel.app/sitemap.xml

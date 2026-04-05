@@ -25,7 +25,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 
 // Types
-interface ProductOption {
+interface CatalogItem {
   id: string;
   name: string;
   stock: number;
@@ -37,7 +37,7 @@ interface ProductOption {
   image?: string;
 }
 
-interface OrderData {
+interface CustomerOrder {
   nome: string;
   telefone: string;
   endereco: string;
@@ -47,7 +47,7 @@ interface OrderData {
   pagamento: string;
 }
 
-const PRODUCTS: ProductOption[] = [
+const CATALOG_ITEMS: CatalogItem[] = [
   {
     id: 'oferta-dia',
     name: 'Shampoo e Condicionador Belutti',
@@ -106,9 +106,9 @@ const PRODUCTS: ProductOption[] = [
   }
 ];
 
-export default function App() {
+export default function BeluttiCosmeticosStore() {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, { quantity: number; price: number }>>({});
-  const [orderData, setOrderData] = useState<OrderData>({
+  const [orderData, setOrderData] = useState<CustomerOrder>({
     nome: '',
     telefone: '',
     endereco: '',
@@ -124,36 +124,36 @@ export default function App() {
   const [showCookies, setShowCookies] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [systemTime, setSystemTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => setSystemTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const formattedDate = currentTime.toLocaleDateString('pt-BR', {
+  const formattedOrderDate = systemTime.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
   });
 
-  const handleOptionChange = (productId: string, quantity: number, price: number) => {
+  const handleItemSelection = (productId: string, quantity: number, price: number) => {
     setSelectedOptions(prev => ({
       ...prev,
       [productId]: { quantity, price }
     }));
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFieldUpdate = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setOrderData(prev => ({ ...prev, [id]: value }));
   };
 
-  const total = useMemo(() => {
+  const cartTotal = useMemo(() => {
     return (Object.values(selectedOptions) as { quantity: number; price: number }[]).reduce((acc, curr) => acc + curr.price, 0);
   }, [selectedOptions]);
 
-  const enviarPedido = () => {
+  const submitOrderToWhatsApp = () => {
     if (!orderData.nome || !orderData.telefone || !orderData.endereco || !orderData.email || !orderData.cep) {
       setErrorMsg('Por favor, preencha todos os dados do pedido.');
       return;
@@ -166,13 +166,13 @@ export default function App() {
 
     let resumoStr = '';
     (Object.entries(selectedOptions) as [string, { quantity: number; price: number }][]).forEach(([id, data]) => {
-      const product = PRODUCTS.find(p => p.id === id);
-      resumoStr += `• ${product?.name}: ${data.quantity} un - R$ ${data.price.toFixed(2)}\n`;
+      const item = CATALOG_ITEMS.find(p => p.id === id);
+      resumoStr += `• ${item?.name}: ${data.quantity} un - R$ ${data.price.toFixed(2)}\n`;
     });
 
     const pagamentoFinal = orderData.pagamento === 'PIX' 
       ? 'PIX' 
-      : `Cartão de Crédito (${selectedInstallment}x de R$ ${(total / selectedInstallment).toFixed(2)})`;
+      : `Cartão de Crédito (${selectedInstallment}x de R$ ${(cartTotal / selectedInstallment).toFixed(2)})`;
 
     const msg = `🛒 *NOVO PEDIDO - BELUTTI COSMÉTICOS*\n\n` +
       `👤 *Dados do Cliente:*\n` +
@@ -183,17 +183,17 @@ export default function App() {
       `CEP: ${orderData.cep}\n\n` +
       `🏷️ *Marca:* ${orderData.marca}\n\n` +
       `📦 *Produtos:*\n${resumoStr}\n` +
-      `💰 *TOTAL: R$ ${total.toFixed(2)}*\n` +
+      `💰 *TOTAL: R$ ${cartTotal.toFixed(2)}*\n` +
       `💳 *Pagamento:* ${pagamentoFinal}\n` +
-      `📅 *Data:* ${formattedDate}`;
+      `📅 *Data:* ${formattedOrderDate}`;
 
     const whatsappNumber = '5573988143062'; 
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   };
 
-  const falarComAtendente = (productName: string) => {
-    const msg = `Olá! Tenho interesse em um pedido maior do produto: ${productName}. Poderia me passar os valores de atacado?`;
+  const requestWholesaleInfo = (itemName: string) => {
+    const msg = `Olá! Tenho interesse em um pedido maior do produto: ${itemName}. Poderia me passar os valores de atacado?`;
     const whatsappNumber = '5573988143062';
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
@@ -319,20 +319,20 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PRODUCTS.map((product, idx) => (
+            {CATALOG_ITEMS.map((item, idx) => (
               <motion.div 
-                key={product.id}
-                id={product.id}
+                key={item.id}
+                id={item.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 className="bg-white rounded-2xl shadow-sm overflow-hidden border border-neutral-200 group flex flex-col hover:shadow-md transition-shadow"
               >
-                {product.image && (
+                {item.image && (
                   <div className="aspect-square overflow-hidden bg-white p-4">
                     <img 
-                      src={product.image} 
-                      alt={product.name}
+                      src={item.image} 
+                      alt={item.name}
                       className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                       referrerPolicy="no-referrer"
                     />
@@ -343,16 +343,16 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <Package className="text-neutral-400" size={18} />
                       <div className="flex flex-col">
-                        <h3 className="text-lg font-bold uppercase tracking-tight">{product.name}</h3>
+                        <h3 className="text-lg font-bold uppercase tracking-tight">{item.name}</h3>
                       </div>
                     </div>
                     
                     <div className="mt-2 mb-1 flex items-baseline gap-2">
                       <span className="text-3xl font-black text-neutral-900 tracking-tighter">
-                        R$ {product.options[0].price.toFixed(2).replace('.', ',')}
+                        R$ {item.options[0].price.toFixed(2).replace('.', ',')}
                       </span>
                       <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-                        {product.id === 'oferta-dia' ? 'por kit' : 'por unidade'}
+                        {item.id === 'oferta-dia' ? 'por kit' : 'por unidade'}
                       </span>
                     </div>
 
@@ -364,22 +364,22 @@ export default function App() {
                   </div>
                   
                   <div className="space-y-3 flex-grow">
-                    {['oferta-dia', 'reparador', 'teia', 'ativador', 'liquida'].includes(product.id) ? (
+                    {['oferta-dia', 'reparador', 'teia', 'ativador', 'liquida'].includes(item.id) ? (
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between p-4 rounded-2xl border border-neutral-100 bg-neutral-50">
                           <div className="flex flex-col">
                             <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Quantidade</span>
                             <span className="text-2xl font-bold text-neutral-900">
-                              {selectedOptions[product.id]?.quantity || 0} {product.id === 'oferta-dia' ? 'Kits' : 'Unid.'}
+                              {selectedOptions[item.id]?.quantity || 0} {item.id === 'oferta-dia' ? 'Kits' : 'Unid.'}
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
                             <button 
                               onClick={() => {
-                                const currentQty = selectedOptions[product.id]?.quantity || 0;
+                                const currentQty = selectedOptions[item.id]?.quantity || 0;
                                 if (currentQty > 0) {
-                                  const unitPrice = product.options[0].price;
-                                  handleOptionChange(product.id, currentQty - 1, (currentQty - 1) * unitPrice);
+                                  const unitPrice = item.options[0].price;
+                                  handleItemSelection(item.id, currentQty - 1, (currentQty - 1) * unitPrice);
                                 }
                               }}
                               className="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-neutral-900 hover:text-white transition-all shadow-sm active:scale-90"
@@ -388,9 +388,9 @@ export default function App() {
                             </button>
                             <button 
                               onClick={() => {
-                                const currentQty = selectedOptions[product.id]?.quantity || 0;
-                                const unitPrice = product.options[0].price;
-                                handleOptionChange(product.id, currentQty + 1, (currentQty + 1) * unitPrice);
+                                const currentQty = selectedOptions[item.id]?.quantity || 0;
+                                const unitPrice = item.options[0].price;
+                                handleItemSelection(item.id, currentQty + 1, (currentQty + 1) * unitPrice);
                               }}
                               className="w-10 h-10 rounded-full bg-neutral-900 text-white flex items-center justify-center shadow-sm hover:bg-neutral-800 transition-all active:scale-90"
                             >
@@ -401,17 +401,17 @@ export default function App() {
                         <div className="flex justify-between items-center px-2">
                           <span className="text-xs font-bold text-neutral-400 uppercase">Subtotal:</span>
                           <span className="text-xl font-bold text-neutral-900">
-                            R$ {((selectedOptions[product.id]?.quantity || 0) * (product.options[0].price)).toFixed(2).replace('.', ',')}
+                            R$ {((selectedOptions[item.id]?.quantity || 0) * (item.options[0].price)).toFixed(2).replace('.', ',')}
                           </span>
                         </div>
                       </div>
                     ) : (
-                      product.options.map((opt) => (
+                      item.options.map((opt) => (
                         <label 
-                          key={`${product.id}-${opt.quantity}`}
+                          key={`${item.id}-${opt.quantity}`}
                           className={`
                             relative flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all
-                            ${selectedOptions[product.id]?.quantity === opt.quantity 
+                            ${selectedOptions[item.id]?.quantity === opt.quantity 
                               ? 'border-red-600 bg-red-50' 
                               : 'border-neutral-100 hover:border-neutral-200 bg-neutral-50'}
                           `}
@@ -419,10 +419,10 @@ export default function App() {
                           <div className="flex items-center gap-3">
                             <input 
                               type="radio" 
-                              name={product.id}
+                              name={item.id}
                               className="w-5 h-5 accent-red-600"
-                              checked={selectedOptions[product.id]?.quantity === opt.quantity}
-                              onChange={() => handleOptionChange(product.id, opt.quantity, opt.price)}
+                              checked={selectedOptions[item.id]?.quantity === opt.quantity}
+                              onChange={() => handleItemSelection(item.id, opt.quantity, opt.price)}
                             />
                             <div className="flex flex-col">
                               <span className="font-bold text-neutral-800">
@@ -444,7 +444,7 @@ export default function App() {
                   </div>
 
                   <button 
-                    onClick={() => falarComAtendente(product.name)}
+                    onClick={() => requestWholesaleInfo(item.name)}
                     className="w-full mt-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 py-3 rounded-xl font-bold text-sm uppercase transition-colors flex items-center justify-center gap-2"
                   >
                     <MessageCircle size={18} />
@@ -504,7 +504,7 @@ export default function App() {
             <select 
               id="marca"
               value={orderData.marca}
-              onChange={handleInputChange}
+              onChange={handleFieldUpdate}
               className="w-full md:w-80 p-4 rounded-2xl bg-neutral-50 border-2 border-neutral-100 focus:border-red-600 focus:ring-0 transition-all font-bold text-neutral-700 cursor-pointer"
             >
               <option value="Minha Marca">Quero com minha marca (Personalizado)</option>
@@ -534,7 +534,7 @@ export default function App() {
                 type="text" 
                 id="nome"
                 value={orderData.nome}
-                onChange={handleInputChange}
+                onChange={handleFieldUpdate}
                 placeholder="Ex: Maria Silva"
                 className="w-full p-4 rounded-2xl bg-neutral-50 border-2 border-neutral-100 focus:border-red-600 transition-all outline-none"
               />
@@ -547,7 +547,7 @@ export default function App() {
                 type="tel" 
                 id="telefone"
                 value={orderData.telefone}
-                onChange={handleInputChange}
+                onChange={handleFieldUpdate}
                 placeholder="(00) 00000-0000"
                 className="w-full p-4 rounded-2xl bg-neutral-50 border-2 border-neutral-100 focus:border-red-600 transition-all outline-none"
               />
@@ -560,7 +560,7 @@ export default function App() {
                 type="text" 
                 id="endereco"
                 value={orderData.endereco}
-                onChange={handleInputChange}
+                onChange={handleFieldUpdate}
                 placeholder="Rua, Número, Bairro, Cidade"
                 className="w-full p-4 rounded-2xl bg-neutral-50 border-2 border-neutral-100 focus:border-red-600 transition-all outline-none"
               />
@@ -573,7 +573,7 @@ export default function App() {
                 type="text" 
                 id="cep"
                 value={orderData.cep}
-                onChange={handleInputChange}
+                onChange={handleFieldUpdate}
                 placeholder="00000-000"
                 className="w-full p-4 rounded-2xl bg-neutral-50 border-2 border-neutral-100 focus:border-red-600 transition-all outline-none"
               />
@@ -586,7 +586,7 @@ export default function App() {
                 type="email" 
                 id="email"
                 value={orderData.email}
-                onChange={handleInputChange}
+                onChange={handleFieldUpdate}
                 placeholder="seu@email.com"
                 className="w-full p-4 rounded-2xl bg-neutral-50 border-2 border-neutral-100 focus:border-red-600 transition-all outline-none"
               />
@@ -608,7 +608,7 @@ export default function App() {
                   <p className="text-neutral-500 italic text-sm">Nenhum produto selecionado...</p>
                 ) : (
                   (Object.entries(selectedOptions) as [string, { quantity: number; price: number }][]).map(([id, data]) => {
-                    const product = PRODUCTS.find(p => p.id === id);
+                    const item = CATALOG_ITEMS.find(p => p.id === id);
                     return (
                       <motion.div 
                         key={id}
@@ -618,7 +618,7 @@ export default function App() {
                         className="flex justify-between items-center border-b border-white/5 pb-3"
                       >
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold">{product?.name}</span>
+                          <span className="text-sm font-bold">{item?.name}</span>
                           <span className="text-xs text-neutral-500">{data.quantity}x unidades</span>
                         </div>
                         <span className="font-bold text-sm">R$ {data.price.toFixed(2).replace('.', ',')}</span>
@@ -632,14 +632,14 @@ export default function App() {
             <div className="pt-6 border-t border-white/10 space-y-4">
               <div className="flex justify-between items-end">
                 <span className="text-neutral-400 font-bold uppercase text-xs tracking-widest">Total Geral</span>
-                <span className="text-4xl font-black text-red-500">R$ {total.toFixed(2).replace('.', ',')}</span>
+                <span className="text-4xl font-black text-red-500">R$ {cartTotal.toFixed(2).replace('.', ',')}</span>
               </div>
               <div className="bg-white/5 p-4 rounded-2xl flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Forma de Pagamento Escolhida:</span>
                 <span className="text-sm font-bold text-white">
                   {orderData.pagamento === 'PIX' 
                     ? 'PIX (Aprovação Imediata)' 
-                    : `${selectedInstallment}x de R$ ${(total / selectedInstallment).toFixed(2).replace('.', ',')} no Cartão`}
+                    : `${selectedInstallment}x de R$ ${(cartTotal / selectedInstallment).toFixed(2).replace('.', ',')} no Cartão`}
                 </span>
               </div>
             </div>
@@ -693,7 +693,7 @@ export default function App() {
                           `}
                         >
                           <span className="text-xs font-bold">{n === 1 ? 'À vista' : `${n}x`}</span>
-                          <span className="text-sm font-bold">R$ {(total / n).toFixed(2).replace('.', ',')}</span>
+                          <span className="text-sm font-bold">R$ {(cartTotal / n).toFixed(2).replace('.', ',')}</span>
                         </button>
                       ))}
                     </div>
@@ -718,13 +718,54 @@ export default function App() {
             </div>
 
             <button 
-              onClick={enviarPedido}
+              onClick={submitOrderToWhatsApp}
               className="w-full bg-green-600 hover:bg-green-700 text-white py-5 rounded-2xl font-bold text-lg uppercase tracking-widest shadow-lg shadow-green-100 transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3"
             >
               <MessageCircle size={24} />
               FINALIZAR PELO WHATSAPP
             </button>
           </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-neutral-100 space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight">Perguntas Frequentes</h2>
+            <p className="text-sm text-neutral-500">Tire suas dúvidas sobre nossos produtos e entregas</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-neutral-50 rounded-2xl space-y-2">
+              <h3 className="font-bold text-neutral-900">Qual o prazo de entrega?</h3>
+              <p className="text-sm text-neutral-600">O prazo varia de acordo com sua região, geralmente entre 3 a 7 dias úteis após a confirmação do pedido.</p>
+            </div>
+            <div className="p-6 bg-neutral-50 rounded-2xl space-y-2">
+              <h3 className="font-bold text-neutral-900">Os produtos são originais?</h3>
+              <p className="text-sm text-neutral-600">Sim, todos os produtos são originais da Belutti Cosméticos e acompanham nota fiscal.</p>
+            </div>
+            <div className="p-6 bg-neutral-50 rounded-2xl space-y-2">
+              <h3 className="font-bold text-neutral-900">Como posso rastrear meu pedido?</h3>
+              <p className="text-sm text-neutral-600">Após o envio, você receberá o código de rastreio diretamente no seu WhatsApp ou e-mail cadastrado.</p>
+            </div>
+            <div className="p-6 bg-neutral-50 rounded-2xl space-y-2">
+              <h3 className="font-bold text-neutral-900">Quais as formas de pagamento?</h3>
+              <p className="text-sm text-neutral-600">Aceitamos PIX com desconto e Cartão de Crédito em até 6x sem juros.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section className="bg-neutral-900 text-white p-8 md:p-12 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-4 text-center md:text-left">
+            <h2 className="text-2xl md:text-4xl font-bold uppercase tracking-tight">Ainda tem dúvidas?</h2>
+            <p className="opacity-80 max-w-md">Nossa equipe de especialistas está pronta para te atender e ajudar na escolha dos melhores produtos.</p>
+          </div>
+          <button 
+            onClick={() => window.open('https://wa.me/5573988143062', '_blank')}
+            className="bg-white text-neutral-900 px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-widest hover:bg-neutral-100 transition-all flex items-center gap-3"
+          >
+            <MessageCircle size={24} />
+            Falar com Especialista
+          </button>
         </section>
       </main>
 
