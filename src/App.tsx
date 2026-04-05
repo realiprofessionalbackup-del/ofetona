@@ -18,7 +18,9 @@ import {
   MapPin,
   Mail,
   Hash,
-  Timer as TimerIcon
+  Timer as TimerIcon,
+  Plus,
+  Minus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -47,6 +49,26 @@ interface OrderData {
 }
 
 const PRODUCTS: ProductOption[] = [
+  {
+    id: 'oferta-dia',
+    name: 'Shampoo e Condicionador Belutti',
+    originalPrice: 100.00,
+    image: 'https://i.ibb.co/d4jX5Qm2/Chat-GPT-Image-5-04-2026-10-56-59.png',
+    stock: 50,
+    options: [
+      { quantity: 1, price: 27.90, isBestSeller: true },
+    ]
+  },
+  {
+    id: 'reparador',
+    name: 'Reparador de Pontas Belutti',
+    originalPrice: 70.00,
+    image: 'https://i.ibb.co/3YFwLGXb/Chat-GPT-Image-5-04-2026-11-23-08.png',
+    stock: 45,
+    options: [
+      { quantity: 1, price: 29.90, isBestSeller: true },
+    ]
+  },
   {
     id: 'progressiva',
     name: 'Progressiva Blackprincess',
@@ -277,6 +299,124 @@ export default function App() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 pt-8 space-y-12">
+        {/* Ofertas em Destaque Section */}
+        <section className="space-y-6">
+          {/* Oferta do Dia Hero Section */}
+          <div className="relative overflow-hidden rounded-[2rem] md:rounded-[4rem] bg-gradient-to-br from-red-600 to-red-800 text-white shadow-2xl">
+            <div className="absolute top-0 right-0 p-6">
+              <motion.div 
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="bg-yellow-400 text-red-900 font-black px-6 py-2 rounded-full text-xl shadow-lg transform rotate-12"
+              >
+                OFERTA DO DIA!
+              </motion.div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center gap-8 p-8 md:p-16">
+              <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
+                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
+                  KIT <span className="text-yellow-400">ECONÔMICO</span> BELUTTI
+                </h2>
+                <p className="text-lg md:text-xl font-bold opacity-90">
+                  A oportunidade que você esperava para ter resultados profissionais com o melhor custo-benefício do mercado!
+                </p>
+                <div className="flex flex-col items-center md:items-start gap-2">
+                  <span className="text-xl line-through opacity-60">De: R$ 100,00</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold uppercase">Por apenas:</span>
+                    <span className="text-5xl md:text-7xl font-black text-yellow-400">R$ 27,90</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    const el = document.getElementById('oferta-dia');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-full md:w-auto bg-white text-red-600 px-12 py-5 rounded-2xl font-black text-2xl uppercase tracking-widest shadow-xl hover:bg-yellow-400 hover:text-red-900 transition-all transform hover:scale-105"
+                >
+                  QUERO ESSA OFERTA!
+                </button>
+              </div>
+              
+              <div className="w-full md:w-1/2 relative">
+                <motion.div
+                  initial={{ rotate: -5, scale: 0.9 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="relative z-10"
+                >
+                  <img 
+                    src="https://i.ibb.co/d4jX5Qm2/Chat-GPT-Image-5-04-2026-10-56-59.png" 
+                    alt="Oferta do Dia" 
+                    className="w-full h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] brightness-[0.85] contrast-[1.1] saturate-[1.2]"
+                    referrerPolicy="no-referrer"
+                  />
+                </motion.div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-yellow-400/20 blur-[100px] rounded-full"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Segunda Maior Oferta do Dia Hero Section */}
+          <div className="relative overflow-hidden rounded-[2rem] md:rounded-[4rem] bg-gradient-to-br from-neutral-800 to-neutral-950 text-white shadow-2xl border-4 border-yellow-400">
+            <div className="absolute top-0 right-0 p-6">
+              <motion.div 
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="bg-red-600 text-white font-black px-6 py-2 rounded-full text-lg shadow-lg transform -rotate-6"
+              >
+                2ª MAIOR OFERTA!
+              </motion.div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row-reverse items-center gap-8 p-8 md:p-16">
+              <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
+                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
+                  REPARADOR <span className="text-yellow-400">DE PONTAS</span>
+                </h2>
+                <p className="text-lg md:text-xl font-bold opacity-90">
+                  O toque final que seu cabelo merece. Brilho intenso e pontas restauradas instantaneamente!
+                </p>
+                <div className="flex flex-col items-center md:items-start gap-2">
+                  <span className="text-xl line-through opacity-60">De: R$ 70,00</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold uppercase">Por apenas:</span>
+                    <span className="text-5xl md:text-7xl font-black text-yellow-400">R$ 29,90</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    const el = document.getElementById('reparador');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-full md:w-auto bg-yellow-400 text-neutral-900 px-12 py-5 rounded-2xl font-black text-2xl uppercase tracking-widest shadow-xl hover:bg-white hover:text-red-600 transition-all transform hover:scale-105"
+                >
+                  APROVEITAR AGORA!
+                </button>
+              </div>
+              
+              <div className="w-full md:w-1/2 relative">
+                <motion.div
+                  initial={{ rotate: 5, scale: 0.9 }}
+                  whileInView={{ rotate: 0, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="relative z-10"
+                >
+                  <img 
+                    src="https://i.ibb.co/3YFwLGXb/Chat-GPT-Image-5-04-2026-11-23-08.png" 
+                    alt="Segunda Maior Oferta" 
+                    className="w-full h-auto object-contain drop-shadow-[0_20px_50px_rgba(255,255,255,0.1)] brightness-[1.1] contrast-[1.05]"
+                    referrerPolicy="no-referrer"
+                  />
+                </motion.div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-red-600/10 blur-[100px] rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Countdown Timer */}
         <CountdownTimer />
 
@@ -291,6 +431,7 @@ export default function App() {
             {PRODUCTS.map((product, idx) => (
               <motion.div 
                 key={product.id}
+                id={product.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -331,40 +472,83 @@ export default function App() {
                   </div>
                   
                   <div className="space-y-3 flex-grow">
-                    {product.options.map((opt) => (
-                      <label 
-                        key={`${product.id}-${opt.quantity}`}
-                        className={`
-                          relative flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all
-                          ${selectedOptions[product.id]?.quantity === opt.quantity 
-                            ? 'border-red-600 bg-red-50' 
-                            : 'border-neutral-100 hover:border-neutral-200 bg-neutral-50'}
-                        `}
-                      >
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="radio" 
-                            name={product.id}
-                            className="w-5 h-5 accent-red-600"
-                            checked={selectedOptions[product.id]?.quantity === opt.quantity}
-                            onChange={() => handleOptionChange(product.id, opt.quantity, opt.price)}
-                          />
+                    {product.id === 'oferta-dia' || product.id === 'reparador' ? (
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between p-6 rounded-3xl border-2 border-red-600 bg-red-50 shadow-inner">
                           <div className="flex flex-col">
-                            <span className="font-bold text-neutral-800">
-                              {opt.quantity} {opt.quantity === 1 ? 'unidade' : 'unidades'}
+                            <span className="text-sm font-bold text-red-600 uppercase tracking-widest">Quantidade</span>
+                            <span className="text-3xl font-black text-neutral-900">
+                              {selectedOptions[product.id]?.quantity || 0} {product.id === 'oferta-dia' ? 'Kits' : 'Unid.'}
                             </span>
-                            {opt.isBestSeller && (
-                              <span className="text-[10px] font-black uppercase text-red-600 flex items-center gap-1">
-                                <Star size={10} fill="currentColor" /> Mais Vendido
-                              </span>
-                            )}
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <button 
+                              onClick={() => {
+                                const currentQty = selectedOptions[product.id]?.quantity || 0;
+                                if (currentQty > 0) {
+                                  const unitPrice = product.id === 'oferta-dia' ? 27.90 : 29.90;
+                                  handleOptionChange(product.id, currentQty - 1, (currentQty - 1) * unitPrice);
+                                }
+                              }}
+                              className="w-12 h-12 rounded-full bg-white border-2 border-neutral-200 flex items-center justify-center text-neutral-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-md active:scale-90"
+                            >
+                              <Minus size={24} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                const currentQty = selectedOptions[product.id]?.quantity || 0;
+                                const unitPrice = product.id === 'oferta-dia' ? 27.90 : 29.90;
+                                handleOptionChange(product.id, currentQty + 1, (currentQty + 1) * unitPrice);
+                              }}
+                              className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-200 hover:bg-red-700 transition-all active:scale-90"
+                            >
+                              <Plus size={24} />
+                            </button>
                           </div>
                         </div>
-                        <span className="text-lg font-black text-neutral-900">
-                          R$ {opt.price.toFixed(2).replace('.', ',')}
-                        </span>
-                      </label>
-                    ))}
+                        <div className="flex justify-between items-center px-2">
+                          <span className="text-sm font-bold text-neutral-500 uppercase">Subtotal:</span>
+                          <span className="text-2xl font-black text-neutral-900">
+                            R$ {((selectedOptions[product.id]?.quantity || 0) * (product.id === 'oferta-dia' ? 27.90 : 29.90)).toFixed(2).replace('.', ',')}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      product.options.map((opt) => (
+                        <label 
+                          key={`${product.id}-${opt.quantity}`}
+                          className={`
+                            relative flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all
+                            ${selectedOptions[product.id]?.quantity === opt.quantity 
+                              ? 'border-red-600 bg-red-50' 
+                              : 'border-neutral-100 hover:border-neutral-200 bg-neutral-50'}
+                          `}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="radio" 
+                              name={product.id}
+                              className="w-5 h-5 accent-red-600"
+                              checked={selectedOptions[product.id]?.quantity === opt.quantity}
+                              onChange={() => handleOptionChange(product.id, opt.quantity, opt.price)}
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-neutral-800">
+                                {opt.quantity} {opt.quantity === 1 ? 'unidade' : 'unidades'}
+                              </span>
+                              {opt.isBestSeller && (
+                                <span className="text-[10px] font-black uppercase text-red-600 flex items-center gap-1">
+                                  <Star size={10} fill="currentColor" /> Mais Vendido
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-lg font-black text-neutral-900">
+                            R$ {opt.price.toFixed(2).replace('.', ',')}
+                          </span>
+                        </label>
+                      ))
+                    )}
                   </div>
 
                   <button 
